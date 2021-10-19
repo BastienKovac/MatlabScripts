@@ -40,7 +40,7 @@ dsp = pwelch(y, M, 1024);
 
 subplot(2,2,4), semilogy(f, abs(fftshift(dsp))), title(sprintf('DSP - Welch (M = %d)', M));
 
-% 4.
+% 4. Use lpc function
 
 % Spectrogram
 
