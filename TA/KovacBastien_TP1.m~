@@ -1,0 +1,86 @@
+i = double(rgb2gray(imread('lena_std.tif')));
+[r, c] = size(i);
+
+SNRdb = 20;
+
+b = gaussian_noise(SNRdb, i(:));
+
+ib = i(:) + b;
+ib = reshape(ib, [r, c]);
+
+figure,
+subplot(3, 2, 1), imshow(uint8(i)), title('Original Image');
+subplot(3, 2, 2), imshow(uint8(ib)), title('Noised Image');
+
+fixed = wiener_blocks(ib, 5, SNRdb);
+mse = mean_squared_error(fixed, i);
+psnr = peak_to_signal_ratio(fixed, i);
+
+subplot(3, 2, 3), imshow(uint8(fixed)), title(sprintf('Block Wiener filter\nMSE = %d\nPSNR = %d', mse, psnr));
+
+% Apply Wiener filter by blocks
+% i : Input image
+% N : Size of blocks
+% SNRdb : Signal to Noise ratio (in dB) of the noise
+function y = wiener_blocks(i, N, SNRdb)
+    [r, c] = size(i);
+    
+    
+end
+
+function C = split_blocks(i, N)
+    [r, c] = size(i);
+
+    rows = floor(r / N);
+    blockVectorR = [N * ones(1, rows), rem(r, N)];
+    
+    cols = floor(c / N);
+    blockVectorC = [blockSizeC * ones(1, wholeBlockCols), rem(columns, blockSizeC)];
+    % Create the cell array, ca.  
+    % Each cell (except for the remainder cells at the end of the image)
+    % in the array contains a blockSizeR by blockSizeC by 3 color array.
+    % This line is where the image is actually divided up into blocks.
+    if numberOfColorBands > 1
+      % It's a color image.
+      ca = mat2cell(rgbImage, blockVectorR, blockVectorC, numberOfColorBands);
+    else
+      ca = mat2cell(rgbImage, blockVectorR, blockVectorC);
+    end
+end
+
+% De-noise an image using a Wiener filter
+% i : Input image
+% SNRdb : Signal to Noise ratio (in dB) of the noise
+% H : (Optional) Point Spread Function
+function y = wiener(i, SNRdb, H)
+    SNR = 1 / (10^SNRdb / 10);
+    
+    if (nargin < 3)
+        H = 1;
+    end
+    
+    y = real(ifft2(1 ./ (conj(H) .* H + SNR * ones(size(i))) .* conj(H) .* fft2(i)));
+end
+
+% Computes the Mean Squared Error between two signals x and y.
+% This assumes x and y have the same size
+function mse = mean_squared_error(x, y)
+    mse = sum((x(:) - y(:)).^2) / numel(x);
+end
+
+% Computes the Peak to Signal Noise Ratio between two signals x and y.
+% This assumes x and y have the same size
+function psnr = peak_to_signal_ratio(x, y)
+    psnr = 10 * log10( 255^2 / mean_squared_error(x, y));
+end
+
+% Returns a gaussian noise computed from a signal x, with a Signal to Noise
+% Ratio of SNRdb (in dB)
+% SNRdb : The Signal to Noise Ratio (in dB)
+% x : The input signal (vectorized)
+function b = gaussian_noise(SNRdb, x)
+    Px = sum(x.^2) / size(x, 1);
+    sigma = sqrt(Px * 10 ^(-SNRdb / 10));
+    
+    b = randn(size(x)) .* sigma;
+end

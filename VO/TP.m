@@ -1,7 +1,7 @@
 Im = double(imread('cameraman.tif'));
 
 im(Im);
-[I, J] = select1(Im, 90);
+[I, J] = select1(Im, 90, 20);
 plotpoints(I, J, size(I));
 title('Select 1');
 
@@ -11,6 +11,21 @@ im(Im);
 plotpoints(I, J, size(I));
 title('Select 2');
 
+figure,
+im(Im);
+
+SigmaDerivation = 1;
+SigmaIntegration = 2;
+Method = 'Harris-Plessey';
+WindowSize = 7;
+Percent = 1;
+
+R = response(Im, SigmaDerivation, SigmaIntegration, Method);
+[I, J] = select1(R, Percent, WindowSize);
+plotpoints(I, J, size(I));
+title('Harris-Plessey method');
+
+
 % Returns the response from the Harris and variants methods
 % Im - Greyscale image
 % SigmaDerivation - Sigma used to compute first derivatives of the image
@@ -18,7 +33,31 @@ title('Select 2');
 % Method - 'Harris-Plessey' or 'Shi-Thomasi' or 'Noble'
 % R - Response matrix
 function [R] = response(Im, SigmaDerivation, SigmaIntegration, Method)
+    [~, Di, Dj, Dii, Djj, Dij] = gaussmask2(SigmaDerivation);
     
+    I = conv2(Im, Di, 'same');
+    J = conv2(Im, Dj, 'same');
+    
+    S = gaussmask2(SigmaIntegration);
+   
+    A = conv2(I .^ 2, S, 'same');
+    C = conv2(J .^ 2, S, 'same');
+    B = conv2(I .* J, S, 'same');
+    
+    if strcmp(Method, 'Harris-Plessey')
+        D = A .* C -B.^2 - 0.04 * (A + C) .^ 2;
+    elseif strcmp(Method, 'Noble')
+        D = 2 * (A .* C - B.^2) ./ (A + C + 1e-15);
+    elseif strcmp(Method, 'Shi-Tomasi')
+        UniformSmooth = ones(size(S) / numel(S));
+        Asmooth = conv2(Dii, UniformSmooth, 'same');
+        Bsmooth = conv2(Djj, UniformSmooth, 'same');
+        Csmooth = conv2(Dij, UniformSmooth, 'same');
+        
+        D = (Asmooth + Csmooth - sqrt((Asmooth - Csmooth) .^ 2 + 4 * Bsmooth .^ 2)) / 2;
+    end
+    
+    R = D;
 end
 
 % Select nbPoints interest points 
@@ -49,8 +88,9 @@ end
 % percent : The percentage of points
 % I = The row indices of selected points
 % J = The col indices of selected points
-function [I, J] = select1(R, percent)
-    R2 = nonmax(R, 20);
+% WindowSize = The window size
+function [I, J] = select1(R, percent, WindowSize)
+    R2 = nonmax(R, WindowSize);
     maxValue = max(max(R2(:)));
     
     [I, J] = find(R2 > (percent / 100) * maxValue);
