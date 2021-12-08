@@ -33,13 +33,8 @@ psnr = peak_to_signal_ratio(fixed, i);
 
 subplot(3, 3, 5), imshow(uint8(fixed)), title(sprintf('Block Wiener filter\nMSE = %d\nPSNR = %d\nN = %d', mse, psnr, N));
 
-N = 32;
 
-fixed = wiener_blocks(ib, N);
-mse = mean_squared_error(fixed, i);
-psnr = peak_to_signal_ratio(fixed, i);
 
-subplot(3, 3, 6), imshow(uint8(fixed)), title(sprintf('Block Wiener filter\nMSE = %d\nPSNR = %d\nN = %d', mse, psnr, N));
 
 % Apply Wiener filter by blocks
 % ib : Noisy image
