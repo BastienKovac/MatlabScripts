@@ -61,17 +61,17 @@ diff_im = im;
 % Masques pour le calcul des gradients.
 hN = [0 1 0; 0 -1 0; 0 0 0];
 hS = [0 0 0; 0 -1 0; 0 1 0];
-hE = ...
-hW = ...
+hE = [0 0 0; 0 -1 1; 0 0 0];
+hW = [0 0 0; 1 -1 0; 0 0 0];
 
 % Anisotropic diffusion.
 for t = 1:num_iter
 
 % Calcul des gradients par convolution, utilisr conv2 avec l'option 'conv'.
-nablaN = ...
-nablaS = ...
-nablaW = ...
-nablaE = ...
+nablaN = imfilter(diff_im,hN,'conv');
+nablaS = imfilter(diff_im,hS,'conv');   
+nablaW = imfilter(diff_im,hW,'conv');
+nablaE = imfilter(diff_im,hE,'conv'); 
 
 % Expression du coefficient de diffusion.
 if option == 1
@@ -87,7 +87,9 @@ cW = 1./(1 + (nablaW/k).^2);
 cE = 1./(1 + (nablaE/k).^2);
 
 % Mise à jour de la solution itérative
-diff_im = ...
+diff_im = diff_im + lambda * 
+  (1/(dy^2))*cN .* nablaN + (1/(dy^2))*cS .* nablaS +
+  (1/(dx^2))*cW .* nablaW + (1/(dx^2))*cE .* nablaE;
 
 end
 

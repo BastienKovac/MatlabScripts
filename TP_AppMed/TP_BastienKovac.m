@@ -95,7 +95,7 @@ S = axes('visible', 'off', 'title', 'NL-Means Filter' );
 hold off
 
 % Anisotrope
-filtered = anisodiff2D(img, 1, 9);
+filtered = anisodiff2D(img, 5, 1, 1, 1);
 b_mode = log10(abs(hilbert(filtered)) * 50 + 50);
 
 figure,
