@@ -85,11 +85,10 @@ cN = 1./(1 + (nablaN/k).^2);
 cS = 1./(1 + (nablaS/k).^2);
 cW = 1./(1 + (nablaW/k).^2);
 cE = 1./(1 + (nablaE/k).^2);
+end
 
 % Mise à jour de la solution itérative
-diff_im = diff_im + lambda * 
-  (1/(dy^2))*cN .* nablaN + (1/(dy^2))*cS .* nablaS +
-  (1/(dx^2))*cW .* nablaW + (1/(dx^2))*cE .* nablaE;
+diff_im = diff_im + lambda * (1/(1^2))*cN .* nablaN + (1/(1^2))*cS .* nablaS + (1/(1^2))*cW .* nablaW + (1/(1^2))*cE .* nablaE;
 
 end
 

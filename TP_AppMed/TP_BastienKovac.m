@@ -63,9 +63,9 @@ S = axes('visible', 'off', 'title', 'Gaussian Filter' );
 hold off
 
 % Bilateral
-filtered = bifilt(img, 9, 1, 1);
-b_mode = log10(abs(hilbert(filtered)) * 50 + 50);
-
+%filtered = bifilt(img, 9, 1, 1);
+%b_mode = log10(abs(hilbert(filtered)) * 50 + 50);
+#{
 figure,
 hold on
 subplot(1,2,1), colormap('gray'), imagesc(b_mode), title('B-Mode of filtered image');
@@ -93,9 +93,10 @@ subplot(1,2,2), colormap('gray'), imagesc(b_mode), title('Filtered B-Mode');
 
 S = axes('visible', 'off', 'title', 'NL-Means Filter' );
 hold off
+#}
 
 % Anisotrope
-filtered = anisodiff2D(img, 5, 1, 1, 1);
+filtered = anisodiff2D(img, 5, 0.25, 0.75, 2);
 b_mode = log10(abs(hilbert(filtered)) * 50 + 50);
 
 figure,
